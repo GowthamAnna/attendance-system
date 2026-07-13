@@ -3,9 +3,13 @@ services:
     name: attendance-system
     runtime: node
     plan: free
+    # --include=dev is REQUIRED: NODE_ENV=production makes npm skip devDependencies,
+    # but tsc/vite/@types live there and are needed to build. Without it the build
+    # exits with status 2 (tsc/vite not found).
+    #
     # migrate + seed run at RUNTIME (start), not build — Render's build environment
     # cannot reach the database's internal host; only the running service can.
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: node server/dist/db/migrate.js && node server/dist/db/seed.js && node server/dist/index.js
     envVars:
       - key: NODE_ENV
