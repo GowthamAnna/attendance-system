@@ -36,92 +36,98 @@ async function seed() {
   }
   await pool.query(`DELETE FROM users WHERE employee_number IN ('ADMIN-001', 'EMP-001')`);
 
-  // 2. Upsert Chiiho as admin with a known password
+  // 2. Ensure Chiiho exists as admin (create only if missing). This seed runs on
+  //    every service start, so we must NOT clobber an existing admin's password
+  //    (e.g. one changed via reset) on each redeploy / cold-start restart.
   const CHIIHO_PASSWORD = 'Chiiho2407!';
-  const chiihoHash = await bcrypt.hash(CHIIHO_PASSWORD, 12);
-  await pool.query(`
-    INSERT INTO users (employee_number, name_ja, name_en, email, password_hash, role)
-    VALUES ($1, $2, $3, $4, $5, 'admin')
-    ON CONFLICT (employee_number) DO UPDATE SET
-      name_ja       = EXCLUDED.name_ja,
-      name_en       = EXCLUDED.name_en,
-      email         = EXCLUDED.email,
-      password_hash = EXCLUDED.password_hash
-  `, ['0000208', '佐野　ちいほ', 'Chiiho Sano', 'c_sano@morabu.com', chiihoHash]);
-
-  const { rows: [chiiho] } = await pool.query(
+  let { rows: [chiiho] } = await pool.query(
     `SELECT id FROM users WHERE employee_number = '0000208'`
   );
+  if (!chiiho) {
+    const chiihoHash = await bcrypt.hash(CHIIHO_PASSWORD, 12);
+    ({ rows: [chiiho] } = await pool.query(`
+      INSERT INTO users (employee_number, name_ja, name_en, email, password_hash, role)
+      VALUES ($1, $2, $3, $4, $5, 'admin')
+      RETURNING id
+    `, ['0000208', '佐野　ちいほ', 'Chiiho Sano', 'c_sano@morabu.com', chiihoHash]));
+  }
 
-  // 3. Upsert each employee, generate password, assign Chiiho as manager
+  // 3. Create each employee only if missing — generate a password just once (first
+  //    seed). Existing employees keep their current password across redeploys and
+  //    cold-start restarts. Manager assignment is idempotent (ON CONFLICT DO NOTHING).
   const passwordMap: Record<string, string> = {};
 
   for (const emp of EMPLOYEES) {
-    const plain = generatePassword();
-    passwordMap[emp.employee_number] = plain;
-    const hash = await bcrypt.hash(plain, 12);
-
-    await pool.query(`
-      INSERT INTO users (employee_number, name_ja, name_en, email, password_hash, role, dispatch_company)
-      VALUES ($1, $2, $3, $4, $5, 'applicant', $6)
-      ON CONFLICT (employee_number) DO UPDATE SET
-        name_ja          = EXCLUDED.name_ja,
-        name_en          = EXCLUDED.name_en,
-        email            = EXCLUDED.email,
-        password_hash    = EXCLUDED.password_hash,
-        dispatch_company = EXCLUDED.dispatch_company
-    `, [
-      emp.employee_number,
-      emp.name_ja,
-      emp.name_en,
-      `${emp.employee_number}@noemail.local`,
-      hash,
-      emp.dispatch_company,
-    ]);
-
-    const { rows: [empRow] } = await pool.query(
+    let { rows: [empRow] } = await pool.query(
       `SELECT id FROM users WHERE employee_number = $1`, [emp.employee_number]
     );
+    if (!empRow) {
+      const plain = generatePassword();
+      passwordMap[emp.employee_number] = plain;
+      const hash = await bcrypt.hash(plain, 12);
+
+      ({ rows: [empRow] } = await pool.query(`
+        INSERT INTO users (employee_number, name_ja, name_en, email, password_hash, role, dispatch_company)
+        VALUES ($1, $2, $3, $4, $5, 'applicant', $6)
+        RETURNING id
+      `, [
+        emp.employee_number,
+        emp.name_ja,
+        emp.name_en,
+        `${emp.employee_number}@noemail.local`,
+        hash,
+        emp.dispatch_company,
+      ]));
+    }
+
     await pool.query(
       `INSERT INTO employee_managers (employee_id, manager_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
       [empRow.id, chiiho.id]
     );
   }
 
-  // 4. Write passwords into column H of the spreadsheet
-  const xlsxPath = path.join(__dirname, '../../../登録者リスト一覧.xlsx');
-  try {
-    const wb = new ExcelJS.Workbook();
-    await wb.xlsx.readFile(xlsxPath);
-    const ws = wb.worksheets[0];
+  const newlyCreated = EMPLOYEES.filter((emp) => passwordMap[emp.employee_number]);
 
-    if (!ws.getCell('H1').value) {
-      ws.getCell('H1').value = '仮パスワード';
-    }
+  // 4. Write passwords into column H of the spreadsheet — only when we actually
+  //    generated new ones (the file lives locally and is absent in cloud deploys).
+  if (newlyCreated.length > 0) {
+    const xlsxPath = path.join(__dirname, '../../../登録者リスト一覧.xlsx');
+    try {
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.readFile(xlsxPath);
+      const ws = wb.worksheets[0];
 
-    ws.eachRow((row, rowNum) => {
-      if (rowNum === 1) return;
-      const empNum = String(row.getCell(1).value ?? '');
-      if (passwordMap[empNum]) {
-        row.getCell(8).value = passwordMap[empNum];
+      if (!ws.getCell('H1').value) {
+        ws.getCell('H1').value = '仮パスワード';
       }
-    });
 
-    await wb.xlsx.writeFile(xlsxPath);
-    console.log('Spreadsheet updated: 登録者リスト一覧.xlsx column H\n');
-  } catch (e) {
-    console.warn('Could not update spreadsheet:', (e as Error).message, '\n');
+      ws.eachRow((row, rowNum) => {
+        if (rowNum === 1) return;
+        const empNum = String(row.getCell(1).value ?? '');
+        if (passwordMap[empNum]) {
+          row.getCell(8).value = passwordMap[empNum];
+        }
+      });
+
+      await wb.xlsx.writeFile(xlsxPath);
+      console.log('Spreadsheet updated: 登録者リスト一覧.xlsx column H\n');
+    } catch (e) {
+      console.warn('Could not update spreadsheet:', (e as Error).message, '\n');
+    }
   }
 
-  // 5. Print all credentials
-  console.log('=== GENERATED CREDENTIALS ===');
-  console.log(`Admin   0000208  (佐野　ちいほ)  ${CHIIHO_PASSWORD}`);
-  console.log('--- Employees ---');
-  for (const emp of EMPLOYEES) {
-    console.log(`${emp.employee_number}  ${emp.name_en.padEnd(24)}  ${passwordMap[emp.employee_number]}`);
+  // 5. Print credentials. Admin login is fixed/known; employee passwords are only
+  //    shown for accounts created on THIS run (existing ones keep their password).
+  console.log(`Admin login: 0000208 (佐野 ちいほ) / ${CHIIHO_PASSWORD}`);
+  if (newlyCreated.length === 0) {
+    console.log('Seed: all employee accounts already exist — passwords unchanged.\n');
+  } else {
+    console.log('=== NEW EMPLOYEE CREDENTIALS (shown once, at first seed) ===');
+    for (const emp of newlyCreated) {
+      console.log(`${emp.employee_number}  ${emp.name_en.padEnd(24)}  ${passwordMap[emp.employee_number]}`);
+    }
+    console.log('============================================================\n');
   }
-  console.log('=============================\n');
-  console.log('Seed complete. Passwords also written to 登録者リスト一覧.xlsx column H.');
 
   await pool.end();
 }
