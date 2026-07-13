@@ -37,33 +37,40 @@ export function AdminEmployeesPage() {
   function closePanel() { setPanelMode(null); setSelectedId(undefined); }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell">
       <Navbar />
-      <div style={{ flex: 1, padding: '28px 20px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h1 style={{ fontSize: '1.4em', color: '#111' }}>{t('employees.title')}</h1>
+      <div style={{ flex: 1, padding: '32px 20px 48px', maxWidth: '980px', margin: '0 auto', width: '100%' }}>
+        <div className="animate-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            </div>
+            <h1 style={{ fontSize: '1.45rem' }}>{t('employees.title')}</h1>
+          </div>
           <button
             onClick={openCreate}
-            style={{ padding: '9px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9em' }}
+            className="btn-primary"
+            style={{ padding: '10px 20px', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            + {t('employees.add')}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            {t('employees.add')}
           </button>
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <div className="card" style={{ display: 'flex', gap: '10px', padding: '13px 15px', marginBottom: '16px', flexWrap: 'wrap', borderRadius: 'var(--r)' }}>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('employees.search_placeholder')}
-            style={{ flex: 1, minWidth: '200px', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '0.9em' }}
+            style={{ flex: 1, minWidth: '200px', padding: '9px 13px', border: '1px solid var(--border-strong)', borderRadius: '10px', fontSize: '0.9rem' }}
           />
-          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value as RoleFilter)} style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '0.9em', background: 'white' }}>
+          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value as RoleFilter)} style={{ padding: '9px 12px', border: '1px solid var(--border-strong)', borderRadius: '10px', fontSize: '0.86rem', background: '#fff', color: 'var(--text-soft)' }}>
             <option value="all">{t('employees.filter_role')}: {t('admin.all')}</option>
             <option value="applicant">{t('profile.roles.applicant')}</option>
             <option value="admin">{t('profile.roles.admin')}</option>
           </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as StatusFilter)} style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '0.9em', background: 'white' }}>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as StatusFilter)} style={{ padding: '9px 12px', border: '1px solid var(--border-strong)', borderRadius: '10px', fontSize: '0.86rem', background: '#fff', color: 'var(--text-soft)' }}>
             <option value="all">{t('employees.filter_status')}: {t('admin.all')}</option>
             <option value="active">{t('employees.status_active')}</option>
             <option value="deactivated">{t('employees.status_deactivated')}</option>
@@ -71,53 +78,55 @@ export function AdminEmployeesPage() {
         </div>
 
         {/* Table */}
-        <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9em' }}>
-            <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                <Th>{t('employees.fields.employee_number')}</Th>
-                <Th>{t('employees.fields.name_ja')}</Th>
-                <Th>{t('employees.fields.name_en')}</Th>
-                <Th>{t('employees.fields.email')}</Th>
-                <Th>{t('employees.fields.role')}</Th>
-                <Th>{t('employees.filter_status')}</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(e => (
-                <tr
-                  key={e.id}
-                  onClick={() => openView(e.id)}
-                  style={{ borderBottom: '1px solid #f3f4f6', cursor: 'pointer' }}
-                  onMouseEnter={ev => (ev.currentTarget.style.background = '#f8fafc')}
-                  onMouseLeave={ev => (ev.currentTarget.style.background = 'white')}
-                >
-                  <Td>{e.employee_number}</Td>
-                  <Td>{e.name_ja}</Td>
-                  <Td>{e.name_en}</Td>
-                  <Td>{e.email}</Td>
-                  <Td>{t(`profile.roles.${e.role}`)}</Td>
-                  <Td>
-                    <span style={{
-                      display: 'inline-block', padding: '2px 10px', borderRadius: '999px',
-                      fontSize: '0.8em', fontWeight: 700,
-                      background: e.is_active ? '#d1fae5' : '#f3f4f6',
-                      color: e.is_active ? '#065f46' : '#6b7280',
-                    }}>
-                      {e.is_active ? t('employees.status_active') : t('employees.status_deactivated')}
-                    </span>
-                  </Td>
+        <div className="card" style={{ overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <Th>{t('employees.fields.employee_number')}</Th>
+                  <Th>{t('employees.fields.name_ja')}</Th>
+                  <Th>{t('employees.fields.name_en')}</Th>
+                  <Th>{t('employees.fields.email')}</Th>
+                  <Th>{t('employees.fields.role')}</Th>
+                  <Th>{t('employees.filter_status')}</Th>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
-                    {t('dashboard.no_requests')}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(e => (
+                  <tr
+                    key={e.id}
+                    onClick={() => openView(e.id)}
+                    style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
+                    onMouseEnter={ev => (ev.currentTarget.style.background = 'var(--accent-soft)')}
+                    onMouseLeave={ev => (ev.currentTarget.style.background = '')}
+                  >
+                    <Td>{e.employee_number}</Td>
+                    <Td>{e.name_ja}</Td>
+                    <Td>{e.name_en}</Td>
+                    <Td>{e.email}</Td>
+                    <Td>{t(`profile.roles.${e.role}`)}</Td>
+                    <Td>
+                      <span style={{
+                        display: 'inline-block', padding: '3px 11px', borderRadius: '999px',
+                        fontSize: '0.78rem', fontWeight: 600,
+                        background: e.is_active ? '#dcfce7' : '#f1f5f9',
+                        color: e.is_active ? '#166534' : '#64748b',
+                      }}>
+                        {e.is_active ? t('employees.status_active') : t('employees.status_deactivated')}
+                      </span>
+                    </Td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      {t('dashboard.no_requests')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <Footer />
@@ -138,9 +147,9 @@ export function AdminEmployeesPage() {
 }
 
 function Th({ children }: { children: React.ReactNode }) {
-  return <th style={{ padding: '11px 14px', textAlign: 'left', fontWeight: 600, color: '#6b7280', fontSize: '0.8em', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{children}</th>;
+  return <th style={{ padding: '13px 14px', textAlign: 'left', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{children}</th>;
 }
 
 function Td({ children }: { children: React.ReactNode }) {
-  return <td style={{ padding: '12px 14px', color: '#374151' }}>{children}</td>;
+  return <td style={{ padding: '13px 14px', color: 'var(--text-soft)', whiteSpace: 'nowrap' }}>{children}</td>;
 }

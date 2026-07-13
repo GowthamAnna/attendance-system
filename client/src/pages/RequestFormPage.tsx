@@ -41,9 +41,9 @@ const ADMIN_MSG_PLACEHOLDERS: Record<RequestType, { ja: string; en: string }> = 
 };
 
 const inputStyle = {
-  width: '100%', padding: '9px 12px', border: '1px solid #d1d5db',
-  borderRadius: '8px', fontSize: '0.95em', boxSizing: 'border-box' as const,
-  background: 'white', color: '#111',
+  width: '100%', padding: '11px 13px', border: '1px solid var(--border-strong)',
+  borderRadius: '10px', fontSize: '0.95rem', boxSizing: 'border-box' as const,
+  background: '#fff', color: 'var(--text)',
 };
 
 interface FormState {
@@ -145,13 +145,21 @@ export function RequestFormPage() {
   const adminMsgPlaceholder = ADMIN_MSG_PLACEHOLDERS[form.requestType][isJa ? 'ja' : 'en'];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell">
       <Navbar />
 
-      <div style={{ flex: 1, padding: '28px 20px', maxWidth: '560px', margin: '0 auto', width: '100%' }}>
-        <h1 style={{ fontSize: '1.4em', marginBottom: '24px', color: '#111' }}>{t('form.title')}</h1>
+      <div style={{ flex: 1, padding: '32px 20px 48px', maxWidth: '600px', margin: '0 auto', width: '100%' }}>
+        <div className="animate-in" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M9 15h6M9 11h2" /></svg>
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.45rem' }}>{t('form.title')}</h1>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-soft)', marginTop: '2px' }}>{t('form.request_type')}</p>
+          </div>
+        </div>
 
-        <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div className="card animate-in" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
           {/* Request Type */}
           <div>
@@ -276,32 +284,32 @@ export function RequestFormPage() {
 
           {/* File upload */}
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85em', fontWeight: 600, color: '#374151' }}>
+            <label style={{ display: 'block', marginBottom: '7px', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-soft)' }}>
               {t('form.attach_file')}
             </label>
             {form.file ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px' }}>
-                <span style={{ color: '#16a34a', fontSize: '0.88em', flex: 1 }}>✓ {form.file.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 13px', background: 'var(--success-soft)', border: '1px solid #bbf7d0', borderRadius: '10px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 6 9 17l-5-5" /></svg>
+                <span style={{ color: 'var(--success)', fontSize: '0.88rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.file.name}</span>
                 <button
                   type="button"
                   onClick={() => { setForm(prev => ({ ...prev, file: null, fileError: '' })); setFileInputKey(k => k + 1); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '1em', lineHeight: 1, padding: '2px 4px' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--danger)', fontSize: '1.05rem', lineHeight: 1, padding: '2px 4px' }}
                   title="Remove file"
                 >✕</button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <label
-                  htmlFor={`file-upload-${fileInputKey}`}
-                  style={{
-                    padding: '5px 12px', background: '#f3f4f6', border: '1px solid #d1d5db',
-                    borderRadius: '6px', cursor: 'pointer', fontSize: '0.88em', fontWeight: 500,
-                    color: '#374151', whiteSpace: 'nowrap' as const,
-                  }}
-                >
-                  {t('form.choose_file')}
-                </label>
-                <span style={{ fontSize: '0.88em', color: '#9ca3af' }}>{t('form.no_file_chosen')}</span>
+              <label
+                htmlFor={`file-upload-${fileInputKey}`}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px',
+                  padding: '14px', background: 'var(--surface-2)', border: '1.5px dashed var(--border-strong)',
+                  borderRadius: '10px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 500,
+                  color: 'var(--text-soft)',
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
+                {t('form.choose_file')}
                 <input
                   id={`file-upload-${fileInputKey}`}
                   key={fileInputKey}
@@ -310,26 +318,24 @@ export function RequestFormPage() {
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
-              </div>
+              </label>
             )}
-            {form.fileError && <p style={{ color: '#dc2626', fontSize: '0.82em', marginTop: '6px' }}>{form.fileError}</p>}
+            {form.fileError && <p style={{ color: 'var(--danger)', fontSize: '0.82rem', marginTop: '6px' }}>{form.fileError}</p>}
           </div>
 
           {/* Required note */}
-          <p style={{ fontSize: '0.78em', color: '#9ca3af', margin: 0 }}>
-            <span style={{ color: '#dc2626' }}>*</span> {isJa ? '必須項目' : 'Required fields'}
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+            <span style={{ color: 'var(--danger)' }}>*</span> {isJa ? '必須項目' : 'Required fields'}
           </p>
 
           <button
             onClick={handleNext}
             disabled={!isValid}
-            style={{
-              padding: '12px', background: isValid ? '#3b82f6' : '#d1d5db',
-              color: 'white', border: 'none', borderRadius: '8px',
-              cursor: isValid ? 'pointer' : 'not-allowed', fontSize: '1em', fontWeight: 600,
-            }}
+            className="btn-primary"
+            style={{ padding: '13px', fontSize: '0.98rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
             {t('form.next')}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </button>
         </div>
       </div>
@@ -341,9 +347,9 @@ export function RequestFormPage() {
 
 function Label({ htmlFor, children, required }: { htmlFor?: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <label htmlFor={htmlFor} style={{ display: 'block', marginBottom: '6px', fontSize: '0.85em', fontWeight: 600, color: '#374151' }}>
+    <label htmlFor={htmlFor} style={{ display: 'block', marginBottom: '7px', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-soft)' }}>
       {children}
-      {required && <span style={{ color: '#dc2626', marginLeft: '3px' }}>*</span>}
+      {required && <span style={{ color: 'var(--danger)', marginLeft: '3px' }}>*</span>}
     </label>
   );
 }

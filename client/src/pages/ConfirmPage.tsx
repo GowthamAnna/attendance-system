@@ -110,14 +110,14 @@ export function ConfirmPage() {
 
   if (submitted) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+      <div className="app-shell">
         <Navbar />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', textAlign: 'center' }}>
-          <p style={{ fontSize: '1.1em', color: '#374151', marginBottom: '28px', maxWidth: '480px' }}>{t('confirm.submitted_message')}</p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{ padding: '11px 28px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.95em' }}
-          >
+          <div className="animate-in" style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'var(--success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '22px' }}>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+          </div>
+          <p style={{ fontSize: '1.1rem', color: 'var(--text)', marginBottom: '28px', maxWidth: '480px' }}>{t('confirm.submitted_message')}</p>
+          <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '12px 28px', fontSize: '0.95rem' }}>
             {t('confirm.back_to_dashboard')}
           </button>
         </div>
@@ -127,12 +127,17 @@ export function ConfirmPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell">
       <Navbar />
-      <div style={{ flex: 1, padding: '28px 20px', maxWidth: '680px', margin: '0 auto', width: '100%' }}>
-        <h1 style={{ fontSize: '1.4em', marginBottom: '24px', color: '#111' }}>{t('confirm.title')}</h1>
+      <div style={{ flex: 1, padding: '32px 20px 48px', maxWidth: '700px', margin: '0 auto', width: '100%' }}>
+        <div className="animate-in" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+          </div>
+          <h1 style={{ fontSize: '1.45rem' }}>{t('confirm.title')}</h1>
+        </div>
 
-        <section style={{ marginBottom: '16px', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <section className="card" style={{ marginBottom: '16px', padding: '22px' }}>
           <h2 style={{ fontSize: '0.95em', fontWeight: 700, color: '#374151', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('confirm.summary')}</h2>
           <dl style={{ display: 'grid', gridTemplateColumns: '140px 1fr', rowGap: '10px', fontSize: '0.9em' }}>
             <dt style={{ color: '#9ca3af', fontWeight: 600 }}>{t('form.request_type')}</dt><dd style={{ color: '#111' }}>{t(`request_type.${form.requestType}`)}</dd>
@@ -149,7 +154,7 @@ export function ConfirmPage() {
           </dl>
         </section>
 
-        <section style={{ marginBottom: '16px', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <section className="card" style={{ marginBottom: '16px', padding: '22px' }}>
           <h2 style={{ fontSize: '0.95em', fontWeight: 700, color: '#374151', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('confirm.message_preview')}</h2>
           {english && (
             <div style={{ marginBottom: '16px' }}>
@@ -220,16 +225,21 @@ export function ConfirmPage() {
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={() => navigate('/request/new', { state: { form } })}
-            style={{ padding: '11px 24px', cursor: 'pointer', border: '1px solid #d1d5db', borderRadius: '8px', background: 'white', fontSize: '0.95em', color: '#374151' }}
+            className="btn-ghost"
+            style={{ padding: '12px 24px', fontSize: '0.95rem' }}
           >
             {t('confirm.back')}
           </button>
           <button
             onClick={handleSend}
             disabled={sending}
-            style={{ flex: 1, padding: '11px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: sending ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '0.95em' }}
+            className="btn-primary"
+            style={{ flex: 1, padding: '12px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
-            {sending ? '…' : t('confirm.send')}
+            {sending ? '…' : (<>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+              {t('confirm.send')}
+            </>)}
           </button>
         </div>
       </div>

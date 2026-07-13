@@ -1,28 +1,178 @@
+/* ============================================================
+   Design system — global tokens, resets, and element polish.
+   Component files still use inline styles for layout; this file
+   provides the professional baseline (typography, focus rings,
+   transitions, hover states) that inline styles can't express.
+   ============================================================ */
+
+:root {
+  /* Brand / accent */
+  --accent:        #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft:   #eff4ff;
+  --accent-grad:   linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+
+  /* Surfaces */
+  --bg:            #f4f6fb;
+  --surface:       #ffffff;
+  --surface-2:     #f8fafc;
+
+  /* Text */
+  --text:          #0f172a;
+  --text-soft:     #475569;
+  --text-muted:    #94a3b8;
+
+  /* Lines */
+  --border:        #e6e8ef;
+  --border-strong: #d3d8e3;
+
+  /* Status */
+  --success:       #16a34a;
+  --success-soft:  #f0fdf4;
+  --danger:        #dc2626;
+  --danger-soft:   #fef2f2;
+
+  /* Radii */
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 18px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow:    0 6px 20px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 18px 46px rgba(15, 23, 42, 0.12);
+
+  --ring: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', 'Noto Sans JP', system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
-  color: #111;
-  background: #f5f5f5;
+  line-height: 1.55;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 100% -10%, #eaf1ff 0%, rgba(234, 241, 255, 0) 55%),
+    radial-gradient(900px 500px at -10% 110%, #eef2fb 0%, rgba(238, 242, 251, 0) 55%),
+    var(--bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  line-height: 1.25;
 }
 
 p { margin: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---- Form controls -------------------------------------------------- */
 
 button { font-family: inherit; font-size: inherit; }
 
 input, select, textarea {
   font-family: inherit;
   font-size: inherit;
+  color: var(--text);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
 }
 
-::placeholder {
-  color: #c4c9d4;
-  opacity: 1;
+/* Focus ring works over inline borders (inline styles win the base border,
+   so the focus state must use !important to override it visually). */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+  box-shadow: var(--ring) !important;
+}
+
+input:hover:not(:focus),
+select:hover:not(:focus),
+textarea:hover:not(:focus) {
+  border-color: var(--border-strong) !important;
+}
+
+select { cursor: pointer; }
+
+::placeholder { color: var(--text-muted); opacity: 1; }
+
+/* Buttons get a smooth press + a subtle lift by default */
+button {
+  transition: transform 0.12s ease, box-shadow 0.16s ease, filter 0.16s ease, background-color 0.16s ease;
+}
+button:not(:disabled) { cursor: pointer; }
+button:not(:disabled):active { transform: translateY(1px); }
+
+/* Date/time native pickers pick up the accent */
+input[type="date"], input[type="time"] { accent-color: var(--accent); }
+
+/* ---- Utility classes used by redesigned components ------------------ */
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+
+.field {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: #fff;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--accent-grad);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+.btn-primary:not(:disabled):hover { box-shadow: 0 10px 22px rgba(37, 99, 235, 0.36); transform: translateY(-1px); }
+.btn-primary:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+
+.btn-ghost {
+  background: #fff;
+  color: var(--text-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  font-weight: 500;
+}
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--border-strong); }
+
+/* Motion */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeInUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ---- Scrollbar ------------------------------------------------------ */
+* { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }

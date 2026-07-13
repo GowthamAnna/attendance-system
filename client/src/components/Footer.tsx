@@ -2,11 +2,13 @@ export function Footer() {
   return (
     <footer style={{
       textAlign: 'center',
-      padding: '18px 20px',
-      fontSize: '0.78em',
-      color: '#9ca3af',
-      borderTop: '1px solid #f0f0f0',
-      background: 'white',
+      padding: '20px',
+      fontSize: '0.78rem',
+      color: 'var(--text-muted)',
+      borderTop: '1px solid var(--border)',
+      background: 'rgba(255,255,255,0.6)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
       marginTop: 'auto',
     }}>
       © {new Date().getFullYear()} All rights reserved by MORABU HANSHIN Industry Co., Ltd.
