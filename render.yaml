@@ -7,6 +7,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "22"
       - key: DATABASE_URL
         fromDatabase:
           name: attendance-db
@@ -15,13 +17,10 @@ services:
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        sync: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
+      # Email via Brevo HTTP API (Render free tier restricts outbound SMTP, so SMTP won't work).
+      # Set these two in the Render dashboard (sync:false = not committed to the repo).
+      # SMTP_FROM must match the verified sender in your Brevo account.
+      - key: BREVO_API_KEY
         sync: false
       - key: SMTP_FROM
         sync: false
